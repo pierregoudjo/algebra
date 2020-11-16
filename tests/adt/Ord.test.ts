@@ -14,7 +14,16 @@ import {
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import { Eq, eqBoolean, eqDate, eqNumber, eqString } from "../../src/adt/Eq.ts";
 
-import { Ord, ordBoolean, ordDate, ordNumber, ordString } from "../../src/adt/Ord.ts";
+import {
+  between,
+  max,
+  min,
+  Ord,
+  ordBoolean,
+  ordDate,
+  ordNumber,
+  ordString,
+} from "../../src/adt/Ord.ts";
 
 const totality = <T>(lte: Ord<T>, generator: (...args: unknown[]) => unknown) =>
   property(generator(), generator(), (x: T, y: T) => {
@@ -38,26 +47,87 @@ const transitivity = <T>(
     expect(lte(x, y) && lte(y, z) ? lte(x, z) : true).toBeTruthy();
   });
 
-const ordLaws = <T>(lte: Ord<T>, eq: Eq<T>, generator: (...args: unknown[]) => unknown) => {
-  assert(totality(lte, generator), undefined)
-  assert(antisymmetry(lte, eq,generator), undefined)
-  assert(transitivity(lte, generator), undefined)
-}
+const associativity = <T>(
+  f: (x: T, y: T) => T,
+  eq: Eq<T>,
+  generator: (...args: unknown[]) => unknown,
+) =>
+  property(
+    generator(),
+    generator(),
+    generator(),
+    (x: T, y: T, z: T) => {
+      expect(
+        eq(
+          f(f(x, y), z),
+          f(x, f(y, z)),
+        ),
+      ).toBeTruthy();
+    },
+  );
+
+const ordLaws = <T>(
+  lte: Ord<T>,
+  eq: Eq<T>,
+  generator: (...args: unknown[]) => unknown,
+) => {
+  assert(totality(lte, generator), undefined);
+  assert(antisymmetry(lte, eq, generator), undefined);
+  assert(transitivity(lte, generator), undefined);
+};
 
 Deno.test("ordString for string type", () => {
-  ordLaws(ordString, eqString, string)
+  ordLaws(ordString, eqString, string);
 });
 
 Deno.test("ordNumber for number type", () => {
-  ordLaws(ordNumber, eqNumber, integer)
-  ordLaws(ordNumber, eqNumber, bigInt)
-  ordLaws(ordNumber, eqNumber, float)
+  ordLaws(ordNumber, eqNumber, integer);
+  ordLaws(ordNumber, eqNumber, bigInt);
+  ordLaws(ordNumber, eqNumber, float);
 });
 
 Deno.test("ordBoolean for boolean type", () => {
-  ordLaws(ordBoolean, eqBoolean, boolean)
+  ordLaws(ordBoolean, eqBoolean, boolean);
 });
 
 Deno.test("ordDate for date type", () => {
-  ordLaws(ordDate, eqDate, date)
+  ordLaws(ordDate, eqDate, date);
+});
+
+Deno.test("Min is associative", () => {
+  const minNumber = min(ordNumber);
+  const minString = min(ordString);
+  const minBoolean = min(ordBoolean);
+  const minDate = min(ordDate);
+
+  assert(associativity(minNumber, eqNumber, integer), undefined);
+  assert(associativity(minString, eqString, string), undefined);
+  assert(associativity(minBoolean, eqBoolean, boolean), undefined);
+  assert(associativity(minDate, eqDate, date), undefined);
+});
+
+Deno.test("Max is associative", () => {
+  const maxNumber = max(ordNumber);
+  const maxString = max(ordString);
+  const maxBoolean = max(ordBoolean);
+  const maxDate = max(ordDate);
+
+  assert(associativity(maxNumber, eqNumber, integer), undefined);
+  assert(associativity(maxString, eqString, string), undefined);
+  assert(associativity(maxBoolean, eqBoolean, boolean), undefined);
+  assert(associativity(maxDate, eqDate, date), undefined);
+});
+
+Deno.test("Between", () => {
+  const betweenNumber = between(ordNumber);
+  const betweenProperty = property(
+    integer(),
+    integer(),
+    integer(),
+    (x: number, y: number, z: number) => {
+      expect((x <= y) && (y <= z) ? betweenNumber(x, z)(y) : true).toBeTruthy();
+    },
+  );
+
+  assert(betweenProperty, undefined);
 });
