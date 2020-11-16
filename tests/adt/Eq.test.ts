@@ -12,6 +12,7 @@ import {
 } from "https://cdn.skypack.dev/fast-check";
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
+  contramap,
   Eq,
   eqBoolean,
   eqDate,
@@ -51,8 +52,9 @@ const eqLaws = <T>(e: Eq<T>, generator: (...args: unknown[]) => unknown) => {
 };
 
 Deno.test("fromEquals check for reference equality first", () => {
-  const equals = () => false;
 
+  // eq will always returns false if the variables don't share the same reference
+  const equals = () => false;
   const eq = fromEquals(equals);
 
   assert(
@@ -89,6 +91,9 @@ Deno.test("getTupleEq combinator", () => {
   const triple = () => genericTuple([string(), string(), string()]);
 
   eqLaws(eqTriple, triple);
+
+  expect(eqTriple(["a", "b", "c"], ["a", "b", "c"])).toBeTruthy();
+  expect(eqTriple(["a", "b", "c"], ["a", "a", "c"])).toBeFalsy();
 });
 
 Deno.test("getStructEq combinator", () => {
@@ -100,4 +105,26 @@ Deno.test("getStructEq combinator", () => {
   const point = () => record({ x: integer(), y: integer() }, undefined);
 
   eqLaws(eqPoint, point);
+
+  expect(eqPoint({x:1, y:1}, {x:1,y:1})).toBeTruthy()
+  expect(eqPoint({x:1, y:1}, {x:1,y:2})).toBeFalsy()
+});
+
+Deno.test("Contramap", () => {
+  type BoxedNumber = { value: number };
+  const unboxValue = (x: BoxedNumber): number => x.value;
+
+  const eqBoxedNumber = contramap(unboxValue)(eqNumber);
+
+  eqLaws(eqBoxedNumber, integer);
+
+  assert(
+    property(
+      integer(),
+      integer(),
+      (x: number, y: number) =>
+        expect(x == y).toEqual(eqBoxedNumber({ value: x }, { value: y })),
+    ),
+    undefined,
+  );
 });
