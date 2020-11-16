@@ -16,6 +16,7 @@ import { Eq, eqBoolean, eqDate, eqNumber, eqString } from "../../src/adt/Eq.ts";
 
 import {
   between,
+  contramap,
   max,
   min,
   Ord,
@@ -125,9 +126,26 @@ Deno.test("Between", () => {
     integer(),
     integer(),
     (x: number, y: number, z: number) => {
-      expect((x <= y) && (y <= z) ? betweenNumber(x, z)(y) : true).toBeTruthy();
+      expect(betweenNumber(x, z)(y)).toEqual((x <= y) && (y <= z));
     },
   );
 
   assert(betweenProperty, undefined);
+});
+
+Deno.test("Contramap", () => {
+  type BoxedNumber = { value: number };
+  const unboxValue = (x: BoxedNumber): number => x.value;
+
+  const ord = contramap(unboxValue)(ordNumber);
+
+  assert(
+    property(
+      integer(),
+      integer(),
+      (x: number, y: number) =>
+        expect(ordNumber(x, y)).toEqual(ord({ value: x }, { value: y })),
+    ),
+    undefined,
+  );
 });

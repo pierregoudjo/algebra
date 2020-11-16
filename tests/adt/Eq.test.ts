@@ -52,7 +52,6 @@ const eqLaws = <T>(e: Eq<T>, generator: (...args: unknown[]) => unknown) => {
 };
 
 Deno.test("fromEquals check for reference equality first", () => {
-
   // eq will always returns false if the variables don't share the same reference
   const equals = () => false;
   const eq = fromEquals(equals);
@@ -106,8 +105,8 @@ Deno.test("getStructEq combinator", () => {
 
   eqLaws(eqPoint, point);
 
-  expect(eqPoint({x:1, y:1}, {x:1,y:1})).toBeTruthy()
-  expect(eqPoint({x:1, y:1}, {x:1,y:2})).toBeFalsy()
+  expect(eqPoint({ x: 1, y: 1 }, { x: 1, y: 1 })).toBeTruthy();
+  expect(eqPoint({ x: 1, y: 1 }, { x: 1, y: 2 })).toBeFalsy();
 });
 
 Deno.test("Contramap", () => {
@@ -123,7 +122,9 @@ Deno.test("Contramap", () => {
       integer(),
       integer(),
       (x: number, y: number) =>
-        expect(x == y).toEqual(eqBoxedNumber({ value: x }, { value: y })),
+        expect(eqNumber(x, y)).toEqual(
+          eqBoxedNumber({ value: x }, { value: y }),
+        ),
     ),
     undefined,
   );
