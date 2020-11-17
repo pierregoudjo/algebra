@@ -1,5 +1,3 @@
-import { eqStrict } from "./Eq.ts";
-
 declare const ord: unique symbol;
 
 export type Ord<T> = {
@@ -10,7 +8,7 @@ export type Ord<T> = {
 const naturalLte = (<T>(x: T, y: T) => x <= y) as Ord<unknown>;
 
 export const fromLte = <T>(lte: (x: T, y: T) => boolean): Ord<T> =>
-  ((x, y) => eqStrict(x, y) || lte(x, y)) as Ord<T>;
+  ((x, y) => (x === y) || lte(x, y)) as Ord<T>;
 
 export const contramap = <A, B>(fn: (b: B) => A) =>
   (o: Ord<A>): Ord<B> => ((x, y) => o(fn(x), fn(y))) as Ord<B>;
