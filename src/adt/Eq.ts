@@ -29,6 +29,9 @@ export const eqBoolean: Eq<boolean> = eqStrict;
 export const eqDate: Eq<Date> = fromEquals((x, y) =>
   x.getTime() === y.getTime()
 );
+export const eqArray: Eq<unknown[]> = fromEquals((x, y) =>
+  x.length === y.length && x.every((v, i) => v == y[i])
+);
 
 export function getTupleEq<T extends ReadonlyArray<Eq<never>>>(
   ...eqs: T

@@ -1,4 +1,5 @@
 import {
+  array,
   assert,
   bigInt,
   boolean,
@@ -14,6 +15,7 @@ import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
   contramap,
   Eq,
+  eqArray,
   eqBoolean,
   eqDate,
   eqNumber,
@@ -62,25 +64,30 @@ Deno.test("fromEquals check for reference equality first", () => {
   );
 });
 
-Deno.test("EqString for string type", () => {
+Deno.test("EqString for string type obeys Setoid Laws", () => {
   eqLaws(eqString, string);
 });
 
-Deno.test("EqNumber for number type", () => {
+Deno.test("EqNumber for number type obeys Setoid Laws", () => {
   eqLaws(eqNumber, integer);
   eqLaws(eqNumber, float);
   eqLaws(eqNumber, bigInt);
 });
 
-Deno.test("eqBoolean for string type", () => {
+Deno.test("eqBoolean for string type obeys Setoid Laws", () => {
   eqLaws(eqBoolean, boolean);
 });
 
-Deno.test("date type", () => {
+Deno.test("eqDate for Date type obeys Setoid Laws", () => {
   eqLaws(eqDate, date);
 });
 
-Deno.test("getTupleEq combinator", () => {
+Deno.test("eqArray for Array type obeys Setoid Laws", () => {
+  const generator = () => array(integer());
+  eqLaws(eqArray, generator);
+});
+
+Deno.test("getTupleEq combinator obeys Setoid Laws and check equality on Tuples", () => {
   const eqTriple = getTupleEq(
     eqString,
     eqString,
@@ -95,7 +102,7 @@ Deno.test("getTupleEq combinator", () => {
   expect(eqTriple(["a", "b", "c"], ["a", "a", "c"])).toBeFalsy();
 });
 
-Deno.test("getStructEq combinator", () => {
+Deno.test("getStructEq combinator obeys Setoid Laws and check equality on Records", () => {
   const eqPoint = getStructEq({
     x: eqNumber,
     y: eqNumber,
@@ -109,23 +116,28 @@ Deno.test("getStructEq combinator", () => {
   expect(eqPoint({ x: 1, y: 1 }, { x: 1, y: 2 })).toBeFalsy();
 });
 
-Deno.test("Contramap", () => {
-  type BoxedNumber = { value: number };
-  const unboxValue = (x: BoxedNumber): number => x.value;
+Deno.test(
+  `Contramap obeys Setoid Laws and results yielded 
+          from the setoid and its contravariant are similar 
+          when applied respectively to a set of source and their images`,
+  () => {
+    type BoxedNumber = { value: number };
+    const unboxValue = (x: BoxedNumber): number => x.value;
 
-  const eqBoxedNumber = contramap(unboxValue)(eqNumber);
+    const eqBoxedNumber = contramap(unboxValue)(eqNumber);
 
-  eqLaws(eqBoxedNumber, integer);
+    eqLaws(eqBoxedNumber, integer);
 
-  assert(
-    property(
-      integer(),
-      integer(),
-      (x: number, y: number) =>
-        expect(eqNumber(x, y)).toEqual(
-          eqBoxedNumber({ value: x }, { value: y }),
-        ),
-    ),
-    undefined,
-  );
-});
+    assert(
+      property(
+        integer(),
+        integer(),
+        (x: number, y: number) =>
+          expect(eqNumber(x, y)).toEqual(
+            eqBoxedNumber({ value: x }, { value: y }),
+          ),
+      ),
+      undefined,
+    );
+  },
+);
