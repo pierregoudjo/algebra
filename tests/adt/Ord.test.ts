@@ -12,11 +12,23 @@ import {
 } from "https://cdn.skypack.dev/fast-check";
 
 import { expect } from "https://deno.land/x/expect/mod.ts";
-import { Eq, eqBoolean, eqDate, eqNumber, eqString } from "../../src/adt/Eq.ts";
+import {
+  Eq,
+  eqBoolean,
+  eqDate,
+  eqNumber,
+  eqString,
+  getTupleEq,
+} from "../../src/adt/Eq.ts";
 
 import {
   between,
   contramap,
+  getTupleOrd,
+  gt,
+  gte,
+  lt,
+  lte,
   max,
   min,
   Ord,
@@ -148,4 +160,54 @@ Deno.test("Contramap", () => {
     ),
     undefined,
   );
+});
+
+Deno.test("getTupleOrd", () => {
+  const ordTriple = getTupleOrd(
+    ordString,
+    ordString,
+    ordString,
+  );
+  const eqTriple = getTupleEq(
+    eqString,
+    eqString,
+    eqString,
+  );
+  const generator = () => genericTuple([string(), string(), string()]);
+
+  ordLaws(ordTriple, eqTriple, generator);
+
+  expect(ordTriple(["a", "b", "c"], ["a", "b", "c"])).toBeTruthy();
+  expect(ordTriple(["a", "a", "b"], ["a", "a", "c"])).toBeTruthy();
+  expect(ordTriple(["", "!", ""], ["", "", " "])).toBeFalsy();
+  expect(ordTriple(["", "", " "], ["", "!", ""])).toBeTruthy();
+  expect(ordTriple(["a", "b", "c"], ["a", "a", "c"])).toBeFalsy();
+  expect(ordTriple(["a", "b", "c"], ["a", "b", "a"])).toBeFalsy();
+});
+
+Deno.test("lt, gt, lte and gte", () => {
+  const ordTriple = getTupleOrd(
+    ordString,
+    ordString,
+    ordString,
+  );
+  const ltTriple = lt(ordTriple);
+  expect(ltTriple(["a", "b", "b"], ["a", "b", "c"])).toBeTruthy();
+  expect(ltTriple(["a", "b", "c"], ["a", "b", "c"])).toBeFalsy();
+  expect(ltTriple(["a", "b", "d"], ["a", "b", "c"])).toBeFalsy();
+
+  const lteTriple = lte(ordTriple);
+  expect(lteTriple(["a", "b", "a"], ["a", "b", "c"])).toBeTruthy();
+  expect(lteTriple(["a", "b", "c"], ["a", "b", "c"])).toBeTruthy();
+  expect(lteTriple(["a", "b", "d"], ["a", "b", "c"])).toBeFalsy();
+
+  const gtTriple = gt(ordTriple);
+  expect(gtTriple(["a", "b", "c"], ["a", "a", "c"])).toBeTruthy();
+  expect(gtTriple(["a", "b", "a"], ["a", "b", "c"])).toBeFalsy();
+  expect(gtTriple(["a", "a", "c"], ["a", "a", "c"])).toBeFalsy();
+
+  const gteString = gte(ordTriple);
+  expect(gteString(["a", "b", "c"], ["a", "a", "c"])).toBeTruthy();
+  expect(gteString(["a", "a", "c"], ["a", "a", "c"])).toBeTruthy();
+  expect(gteString(["a", "b", "a"], ["a", "b", "c"])).toBeFalsy();
 });
