@@ -7,7 +7,6 @@ import {
   genericTuple,
   integer,
   property,
-  record,
   string,
 } from "https://cdn.skypack.dev/fast-check";
 
