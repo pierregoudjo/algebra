@@ -1,8 +1,9 @@
+import { BinaryRelation } from "./BinaryRelation.ts";
+
 declare const ord: unique symbol;
 
-export type Ord<T> = {
+export type Ord<T> = BinaryRelation<T> & {
   [ord]: true;
-  (x: T, y: T): boolean;
 };
 
 const naturalLte = (<T>(x: T, y: T) => x <= y) as Ord<unknown>;

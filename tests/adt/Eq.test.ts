@@ -14,7 +14,6 @@ import {
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
   contramap,
-  Eq,
   eqBoolean,
   eqDate,
   eqNumber,
@@ -23,20 +22,27 @@ import {
   getEqArray,
   getStructEq,
   getTupleEq,
-} from "../../src/adt/Eq.ts";
+  Setoid,
+} from "../../src/adt/Setoid.ts";
 
-const reflexivity = <T>(e: Eq<T>, generator: (...args: unknown[]) => unknown) =>
+const reflexivity = <T>(
+  e: Setoid<T>,
+  generator: (...args: unknown[]) => unknown,
+) =>
   property(generator(), (x: T) => {
     expect(e(x, x)).toBeTruthy();
   });
 
-const symmetry = <T>(e: Eq<T>, generator: (...args: unknown[]) => unknown) =>
+const symmetry = <T>(
+  e: Setoid<T>,
+  generator: (...args: unknown[]) => unknown,
+) =>
   property(generator(), generator(), (x: T, y: T) => {
     expect(e(x, y)).toEqual(e(y, x));
   });
 
 const transitivity = <T>(
-  e: Eq<T>,
+  e: Setoid<T>,
   generator: (...args: unknown[]) => unknown,
 ) =>
   property(
@@ -47,7 +53,10 @@ const transitivity = <T>(
       expect(e(x, y) && e(y, z) ? e(x, z) : true).toBeTruthy(),
   );
 
-const eqLaws = <T>(e: Eq<T>, generator: (...args: unknown[]) => unknown) => {
+const eqLaws = <T>(
+  e: Setoid<T>,
+  generator: (...args: unknown[]) => unknown,
+) => {
   assert(reflexivity(e, generator), undefined);
   assert(symmetry(e, generator), undefined);
   assert(transitivity(e, generator), undefined);

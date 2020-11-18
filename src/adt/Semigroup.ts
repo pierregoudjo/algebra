@@ -1,9 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
+import { InternalBinaryOperation } from "./InternalBinaryOperation.ts";
+
 declare const semigroup: unique symbol;
 
-export type Semigroup<T> = {
+export type Semigroup<T> = InternalBinaryOperation<T> & {
   [semigroup]: true;
-  (x: T, y: T): T;
 };
 
 export const fromConcat = <T>(fn: (x: T, y: T) => T) => fn as Semigroup<T>;

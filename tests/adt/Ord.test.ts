@@ -12,13 +12,13 @@ import {
 
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
-  Eq,
   eqBoolean,
   eqDate,
   eqNumber,
   eqString,
   getTupleEq,
-} from "../../src/adt/Eq.ts";
+  Setoid,
+} from "../../src/adt/Setoid.ts";
 
 import {
   between,
@@ -44,7 +44,7 @@ const totality = <T>(lte: Ord<T>, generator: (...args: unknown[]) => unknown) =>
 
 const antisymmetry = <T>(
   lte: Ord<T>,
-  eq: Eq<T>,
+  eq: Setoid<T>,
   generator: (...args: unknown[]) => unknown,
 ) =>
   property(generator(), generator(), (x: T, y: T) => {
@@ -61,7 +61,7 @@ const transitivity = <T>(
 
 const associativity = <T>(
   f: (x: T, y: T) => T,
-  eq: Eq<T>,
+  eq: Setoid<T>,
   generator: (...args: unknown[]) => unknown,
 ) =>
   property(
@@ -80,7 +80,7 @@ const associativity = <T>(
 
 const ordLaws = <T>(
   lte: Ord<T>,
-  eq: Eq<T>,
+  eq: Setoid<T>,
   generator: (...args: unknown[]) => unknown,
 ) => {
   assert(totality(lte, generator), undefined);

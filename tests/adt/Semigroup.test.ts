@@ -87,7 +87,7 @@ that concats together the elements of a record`,
     const addCoordinates = getStructSemigroup({ x: addNumber, y: addNumber });
     const point = () => record({ x: integer(), y: integer() }, undefined);
 
-    // assert(associativity(addCoordinates, point), undefined);
+    assert(associativity(addCoordinates, point), undefined);
 
     assert(
       property(point(), point(), (a: Point, b: Point) => {
