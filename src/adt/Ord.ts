@@ -32,7 +32,7 @@ export const between = <T>(o: Ord<T>) =>
   (low: T, hi: T) => (x: T): boolean => o(low, x) && o(x, hi);
 
 export const getTupleOrd = <T extends ReadonlyArray<Ord<never>>>(
-  ...ords: T
+  ords: T,
 ): Ord<{ [K in keyof T]: T[K] extends Ord<infer A> ? A : never }> =>
   fromLte((x, y) => {
     let i = 0;

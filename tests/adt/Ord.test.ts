@@ -164,14 +164,10 @@ Deno.test("Contramap", () => {
 
 Deno.test("getTupleOrd", () => {
   const ordTriple = getTupleOrd(
-    ordString,
-    ordString,
-    ordString,
+    [ordString, ordString, ordString] as const,
   );
   const eqTriple = getTupleEq(
-    eqString,
-    eqString,
-    eqString,
+    [eqString, eqString, eqString] as const,
   );
   const generator = () => genericTuple([string(), string(), string()]);
 
@@ -187,9 +183,7 @@ Deno.test("getTupleOrd", () => {
 
 Deno.test("lt, gt, lte and gte", () => {
   const ordTriple = getTupleOrd(
-    ordString,
-    ordString,
-    ordString,
+    [ordString, ordString, ordString] as const,
   );
   const ltTriple = lt(ordTriple);
   expect(ltTriple(["a", "b", "b"], ["a", "b", "c"])).toBeTruthy();

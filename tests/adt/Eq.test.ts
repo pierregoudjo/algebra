@@ -15,12 +15,12 @@ import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
   contramap,
   Eq,
-  eqArray,
   eqBoolean,
   eqDate,
   eqNumber,
   eqString,
   fromEquals,
+  getEqArray,
   getStructEq,
   getTupleEq,
 } from "../../src/adt/Eq.ts";
@@ -84,14 +84,12 @@ Deno.test("eqDate for Date type obeys Setoid Laws", () => {
 
 Deno.test("eqArray for Array type obeys Setoid Laws", () => {
   const generator = () => array(integer());
-  eqLaws(eqArray, generator);
+  eqLaws(getEqArray(eqNumber), generator);
 });
 
 Deno.test("getTupleEq combinator obeys Setoid Laws and check equality on Tuples", () => {
   const eqTriple = getTupleEq(
-    eqString,
-    eqString,
-    eqString,
+    [eqString, eqString, eqString] as const,
   );
 
   const triple = () => genericTuple([string(), string(), string()]);

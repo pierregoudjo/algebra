@@ -29,15 +29,15 @@ export const eqBoolean: Eq<boolean> = eqStrict;
 export const eqDate: Eq<Date> = fromEquals((x, y) =>
   x.getTime() === y.getTime()
 );
-export const eqArray: Eq<unknown[]> = fromEquals((x, y) =>
-  x.length === y.length && x.every((v, i) => v == y[i])
-);
 
-export function getTupleEq<T extends ReadonlyArray<Eq<never>>>(
-  ...eqs: T
-): Eq<{ [K in keyof T]: T[K] extends Eq<infer A> ? A : never }> {
+export const getEqArray = <T>(eq: Eq<T>): Eq<T[]> =>
+  fromEquals((x, y) => x.length === y.length && x.every((v, i) => eq(v, y[i])));
+
+export const getTupleEq = <T extends ReadonlyArray<Eq<never>>>(
+  eqs: T,
+): Eq<{ [K in keyof T]: T[K] extends Eq<infer A> ? A : never }> => {
   return fromEquals((x, y) => eqs.every((E, i) => E(x[i], y[i])));
-}
+};
 
 export const getStructEq = <O extends Record<string, unknown>>(
   eqs: { [K in keyof O]: Eq<O[K]> },
