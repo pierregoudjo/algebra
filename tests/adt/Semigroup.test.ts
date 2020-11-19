@@ -15,6 +15,7 @@ import {
   addNumber,
   concatArray,
   concatString,
+  fold,
   getStructSemigroup,
   getTupleSemigroup,
   multiplyNumber,
@@ -99,3 +100,19 @@ that concats together the elements of a record`,
     );
   },
 );
+
+Deno.test("fold is a function that given a sequence, concat them and return the total starting with a value", () => {
+  assert(
+    property(
+      integer(),
+      integer(),
+      integer(),
+      (x: number, y: number, z: number) => {
+        expect(fold(addNumber)(x)([y, z])).toEqual(
+          addNumber(x, addNumber(y, z)),
+        );
+      },
+    ),
+    undefined,
+  );
+});

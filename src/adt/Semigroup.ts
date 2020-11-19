@@ -30,3 +30,6 @@ export const getStructSemigroup = <T extends Record<string, unknown>>(
       [key]: semigroup(x[key], y[key]),
     })).reduce((prev, curr) => ({ ...prev, ...curr }), {}) as any
   );
+
+export const fold = <T>(semigroup: Semigroup<T>) =>
+  (startWith: T) => (array: T[]) => array.reduce(semigroup, startWith);
