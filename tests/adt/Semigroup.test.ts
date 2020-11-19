@@ -102,17 +102,23 @@ that concats together the elements of a record`,
 );
 
 Deno.test("fold is a function that given a sequence, concat them and return the total starting with a value", () => {
-  assert(
+  const assertFoldingConcat = <T>(semigroup: Semigroup<T>, generator:(...args: unknown[]) => unknown) => assert(
     property(
-      integer(),
-      integer(),
-      integer(),
-      (x: number, y: number, z: number) => {
-        expect(fold(addNumber)(x)([y, z])).toEqual(
-          addNumber(x, addNumber(y, z)),
+      generator(),
+      generator(),
+      generator(),
+      (x: T, y: T, z: T) => {
+        expect(fold(semigroup)(x)([y, z])).toEqual(
+          semigroup(x, semigroup(y, z))
         );
-      },
+      }
     ),
-    undefined,
+    undefined
   );
+
+  const arrayOfString = () => array(string())
+  assertFoldingConcat(addNumber, integer)
+  assertFoldingConcat(concatString, string)
+  assertFoldingConcat(multiplyNumber, float)
+  assertFoldingConcat(concatArray, arrayOfString)
 });

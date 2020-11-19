@@ -73,16 +73,23 @@ Deno.test("concatArray is an associative binary operation with an identity eleme
 });
 
 Deno.test("fold is a function that given a sequence, concat them and return the total", () => {
-  assert(
+  const assertFoldConcatElements = <T>(monoid: Monoid<T>, generator:(...args: unknown[]) => unknown) => assert(
     property(
-      integer(),
-      integer(),
-      (x: number, y: number) => {
-        expect(fold(addNumber)([x, y])).toEqual(
-          addNumber(addNumber.empty, addNumber(x, y)),
+      generator(),
+      generator(),
+      (x: T, y: T) => {
+        expect(fold(monoid)([x, y])).toEqual(
+          monoid(monoid.empty, monoid(x, y))
         );
-      },
+      }
     ),
-    undefined,
+    undefined
   );
+  
+  const arrayOfString = () => array(string())
+
+  assertFoldConcatElements(addNumber, integer)
+  assertFoldConcatElements(concatString, string)
+  assertFoldConcatElements(multiplyNumber, float)
+  assertFoldConcatElements(concatArray, arrayOfString)
 });
