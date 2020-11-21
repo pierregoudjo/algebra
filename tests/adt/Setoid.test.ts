@@ -18,7 +18,7 @@ import {
   eqDate,
   eqNumber,
   eqString,
-  fromEquals,
+  from,
   getEqArray,
   getStructEq,
   getTupleEq,
@@ -65,7 +65,7 @@ const eqLaws = <T>(
 Deno.test("fromEquals check for reference equality first", () => {
   // eq will always returns false if the variables don't share the same reference
   const equals = () => false;
-  const eq = fromEquals(equals);
+  const eq = from(equals);
 
   assert(
     property(string(), (str: string) => expect(eq(str, str)).toBeTruthy()),

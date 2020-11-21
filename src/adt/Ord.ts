@@ -8,18 +8,18 @@ export type Ord<T> = BinaryRelation<T> & {
 
 const naturalLte = (<T>(x: T, y: T) => x <= y) as Ord<unknown>;
 
-export const fromLte = <T>(lte: (x: T, y: T) => boolean): Ord<T> =>
+export const from = <T>(lte: (x: T, y: T) => boolean): Ord<T> =>
   ((x, y) => (x === y) || lte(x, y)) as Ord<T>;
 
 export const contramap = <A, B>(fn: (b: B) => A) =>
   (o: Ord<A>): Ord<B> => ((x, y) => o(fn(x), fn(y))) as Ord<B>;
 
-export const ordString: Ord<string> = fromLte((x, y) =>
+export const ordString: Ord<string> = from((x, y) =>
   x.localeCompare(y) <= 0
 );
 export const ordNumber: Ord<number> = naturalLte;
 export const ordBoolean: Ord<boolean> = naturalLte;
-export const ordDate: Ord<Date> = fromLte((x, y) => x.getTime() <= y.getTime());
+export const ordDate: Ord<Date> = from((x, y) => x.getTime() <= y.getTime());
 
 export const gt = <T>(o: Ord<T>) => (x: T, y: T) => !o(x, y);
 export const lt = <T>(o: Ord<T>) =>
@@ -35,7 +35,7 @@ export const between = <T>(o: Ord<T>) =>
 export const getTupleOrd = <T extends ReadonlyArray<Ord<never>>>(
   ords: T,
 ): Ord<{ [K in keyof T]: T[K] extends Ord<infer A> ? A : never }> =>
-  fromLte((x, y) => {
+  from((x, y) => {
     let i = 0;
     const len = ords.length;
     for (; i < len - 1; i++) {

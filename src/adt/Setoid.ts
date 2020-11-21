@@ -13,7 +13,7 @@ export type Setoid<A> = BinaryRelation<A> & {
  * fromEquals generate a type class from an equality function. It tests in priority reference equality
  * @param equals Equality function
  */
-export const fromEquals = <A>(equals: (x: A, y: A) => boolean): Setoid<A> =>
+export const from = <A>(equals: (x: A, y: A) => boolean): Setoid<A> =>
   ((x, y) => x === y || equals(x, y)) as Setoid<A>;
 
 /**
@@ -28,23 +28,23 @@ export const eqString: Setoid<string> =
   >;
 export const eqNumber: Setoid<number> = eqStrict;
 export const eqBoolean: Setoid<boolean> = eqStrict;
-export const eqDate: Setoid<Date> = fromEquals((x, y) =>
+export const eqDate: Setoid<Date> = from((x, y) =>
   x.getTime() === y.getTime()
 );
 
 export const getEqArray = <T>(eq: Setoid<T>): Setoid<T[]> =>
-  fromEquals((x, y) => x.length === y.length && x.every((v, i) => eq(v, y[i])));
+  from((x, y) => x.length === y.length && x.every((v, i) => eq(v, y[i])));
 
 export const getTupleEq = <T extends ReadonlyArray<Setoid<never>>>(
   eqs: T,
 ): Setoid<{ [K in keyof T]: T[K] extends Setoid<infer A> ? A : never }> => {
-  return fromEquals((x, y) => eqs.every((E, i) => E(x[i], y[i])));
+  return from((x, y) => eqs.every((E, i) => E(x[i], y[i])));
 };
 
 export const getStructEq = <O extends Record<string, unknown>>(
   eqs: { [K in keyof O]: Setoid<O[K]> },
 ): Setoid<O> =>
-  fromEquals((x, y) =>
+  from((x, y) =>
     Object.entries(eqs).every(([key, eq]) => eq(x[key], y[key]))
   );
 
