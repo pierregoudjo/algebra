@@ -12,6 +12,7 @@ import {
 
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
+  addBigInt,
   addNumber,
   concatArray,
   concatString,
@@ -19,8 +20,9 @@ import {
   getStructSemigroup,
   getTupleSemigroup,
   multiplyNumber,
-  Semigroup,
 } from "../../src/adt/Semigroup.ts";
+
+import type { Semigroup } from "../../src/adt/Semigroup.ts";
 
 const associativity = <T>(
   concat: Semigroup<T>,
@@ -41,6 +43,8 @@ Deno.test("concatString is an associative binary operation on strings and concat
 
 Deno.test("addNumber is an associative binary operation on numbers and add two numbers together ", () => {
   assert(associativity(addNumber, integer), undefined);
+  assert(associativity(addNumber, float), undefined);
+  assert(associativity(addBigInt, bigInt), undefined);
 });
 
 Deno.test("multiplyNumber is an associative binary operation on numbers and multiply two numbers together ", () => {
@@ -102,23 +106,27 @@ that concats together the elements of a record`,
 );
 
 Deno.test("fold is a function that given a sequence, concat them and return the total starting with a value", () => {
-  const assertFoldingConcat = <T>(semigroup: Semigroup<T>, generator:(...args: unknown[]) => unknown) => assert(
-    property(
-      generator(),
-      generator(),
-      generator(),
-      (x: T, y: T, z: T) => {
-        expect(fold(semigroup)(x)([y, z])).toEqual(
-          semigroup(x, semigroup(y, z))
-        );
-      }
-    ),
-    undefined
-  );
+  const assertFoldingConcat = <T>(
+    semigroup: Semigroup<T>,
+    generator: (...args: unknown[]) => unknown,
+  ) =>
+    assert(
+      property(
+        generator(),
+        generator(),
+        generator(),
+        (x: T, y: T, z: T) => {
+          expect(fold(semigroup)(x)([y, z])).toEqual(
+            semigroup(x, semigroup(y, z)),
+          );
+        },
+      ),
+      undefined,
+    );
 
-  const arrayOfString = () => array(string())
-  assertFoldingConcat(addNumber, integer)
-  assertFoldingConcat(concatString, string)
-  assertFoldingConcat(multiplyNumber, float)
-  assertFoldingConcat(concatArray, arrayOfString)
+  const arrayOfString = () => array(string());
+  assertFoldingConcat(addNumber, integer);
+  assertFoldingConcat(concatString, string);
+  assertFoldingConcat(multiplyNumber, float);
+  assertFoldingConcat(concatArray, arrayOfString);
 });

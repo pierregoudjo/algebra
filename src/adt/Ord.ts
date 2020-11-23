@@ -1,4 +1,4 @@
-import { BinaryRelation } from "./BinaryRelation.ts";
+import type { BinaryRelation } from "./BinaryRelation.ts";
 
 declare const ord: unique symbol;
 
@@ -8,15 +8,13 @@ export type Ord<T> = BinaryRelation<T> & {
 
 const naturalLte = (<T>(x: T, y: T) => x <= y) as Ord<unknown>;
 
-export const from = <T>(lte: (x: T, y: T) => boolean): Ord<T> =>
+export const from = <T>(lte: BinaryRelation<T>): Ord<T> =>
   ((x, y) => (x === y) || lte(x, y)) as Ord<T>;
 
 export const contramap = <A, B>(fn: (b: B) => A) =>
   (o: Ord<A>): Ord<B> => ((x, y) => o(fn(x), fn(y))) as Ord<B>;
 
-export const ordString: Ord<string> = from((x, y) =>
-  x.localeCompare(y) <= 0
-);
+export const ordString: Ord<string> = from((x, y) => x.localeCompare(y) <= 0);
 export const ordNumber: Ord<number> = naturalLte;
 export const ordBoolean: Ord<boolean> = naturalLte;
 export const ordDate: Ord<Date> = from((x, y) => x.getTime() <= y.getTime());

@@ -22,8 +22,9 @@ import {
   getEqArray,
   getStructEq,
   getTupleEq,
-  Setoid,
 } from "../../src/adt/Setoid.ts";
+
+import type { Setoid } from "../../src/adt/Setoid.ts";
 
 const reflexivity = <T>(
   e: Setoid<T>,

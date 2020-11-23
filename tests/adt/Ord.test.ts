@@ -17,8 +17,9 @@ import {
   eqNumber,
   eqString,
   getTupleEq,
-  Setoid,
 } from "../../src/adt/Setoid.ts";
+
+import type { Setoid } from "../../src/adt/Setoid.ts";
 
 import {
   between,
@@ -30,12 +31,13 @@ import {
   lte,
   max,
   min,
-  Ord,
   ordBoolean,
   ordDate,
   ordNumber,
   ordString,
 } from "../../src/adt/Ord.ts";
+
+import type { Ord } from "../../src/adt/Ord.ts";
 
 const totality = <T>(lte: Ord<T>, generator: (...args: unknown[]) => unknown) =>
   property(generator(), generator(), (x: T, y: T) => {

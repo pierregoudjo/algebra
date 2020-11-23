@@ -1,10 +1,10 @@
 import { expect } from "https://deno.land/x/expect/mod.ts";
 import {
+  addBigInt,
   addNumber,
   concatArray,
   concatString,
   fold,
-  Monoid,
   multiplyNumber,
 } from "../../src/adt/Monoid.ts";
 import {
@@ -12,12 +12,12 @@ import {
   assert,
   bigInt,
   float,
-  genericTuple,
   integer,
   property,
-  record,
   string,
 } from "https://cdn.skypack.dev/fast-check";
+
+import type { Monoid } from "../../src/adt/Monoid.ts";
 
 const associativity = <T>(
   concat: Monoid<T>,
@@ -56,9 +56,10 @@ const monoidLaws = <T>(
 Deno.test("concatString is an associative binary operation with an identity element following Monoid laws", () => {
   monoidLaws(concatString, string);
 });
-Deno.test("addNumber is an associative binary operation with an identity element following Monoid laws", () => {
+Deno.test("addNumber and addBigInt are associative binary operations with an identity element following Monoid laws", () => {
   monoidLaws(addNumber, integer);
   monoidLaws(addNumber, float);
+  monoidLaws(addBigInt, bigInt);
 });
 
 Deno.test("multiplyNumber is an associative binary operation with an identity element following Monoid laws", () => {
@@ -73,23 +74,27 @@ Deno.test("concatArray is an associative binary operation with an identity eleme
 });
 
 Deno.test("fold is a function that given a sequence, concat them and return the total", () => {
-  const assertFoldConcatElements = <T>(monoid: Monoid<T>, generator:(...args: unknown[]) => unknown) => assert(
-    property(
-      generator(),
-      generator(),
-      (x: T, y: T) => {
-        expect(fold(monoid)([x, y])).toEqual(
-          monoid(monoid.empty, monoid(x, y))
-        );
-      }
-    ),
-    undefined
-  );
-  
-  const arrayOfString = () => array(string())
+  const assertFoldConcatElements = <T>(
+    monoid: Monoid<T>,
+    generator: (...args: unknown[]) => unknown,
+  ) =>
+    assert(
+      property(
+        generator(),
+        generator(),
+        (x: T, y: T) => {
+          expect(fold(monoid)([x, y])).toEqual(
+            monoid(monoid.empty, monoid(x, y)),
+          );
+        },
+      ),
+      undefined,
+    );
 
-  assertFoldConcatElements(addNumber, integer)
-  assertFoldConcatElements(concatString, string)
-  assertFoldConcatElements(multiplyNumber, float)
-  assertFoldConcatElements(concatArray, arrayOfString)
+  const arrayOfString = () => array(string());
+
+  assertFoldConcatElements(addNumber, integer);
+  assertFoldConcatElements(concatString, string);
+  assertFoldConcatElements(multiplyNumber, float);
+  assertFoldConcatElements(concatArray, arrayOfString);
 });

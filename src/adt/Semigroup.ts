@@ -1,5 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
-import { InternalBinaryOperation } from "./InternalBinaryOperation.ts";
+import type { InternalBinaryOperation } from "./InternalBinaryOperation.ts";
 
 declare const semigroup: unique symbol;
 
@@ -7,18 +6,20 @@ export type Semigroup<T> = InternalBinaryOperation<T> & {
   [semigroup]: true;
 };
 
-export const from = <T>(fn: (x: T, y: T) => T) => fn as Semigroup<T>;
+export const from = <T>(fn: InternalBinaryOperation<T>) => fn as Semigroup<T>;
 export const concatString: Semigroup<string> = from((x, y) => x + y);
 export const addNumber: Semigroup<number> = from((x, y) => x + y);
+export const addBigInt: Semigroup<bigint> = from((x, y) => x + y);
 export const multiplyNumber: Semigroup<number> = from((x, y) => x * y);
-export const concatArray: Semigroup<unknown[]> = from((x, y) =>
-  x.concat(y)
-);
+export const multiplyBigInt: Semigroup<bigint> = from((x, y) => x * y);
+export const concatArray: Semigroup<unknown[]> = from((x, y) => x.concat(y));
 
+// deno-lint-ignore no-explicit-any
 export const getTupleSemigroup = <T extends ReadonlyArray<Semigroup<any>>>(
   semigroups: T,
 ): Semigroup<{ [K in keyof T]: T[K] extends Semigroup<infer A> ? A : never }> =>
   from((x, y) =>
+    // deno-lint-ignore no-explicit-any
     semigroups.map((semigroup, i) => semigroup(x[i], y[i])) as any
   );
 
@@ -28,6 +29,7 @@ export const getStructSemigroup = <T extends Record<string, unknown>>(
   from((x, y) =>
     Object.entries(semigroupStruct).map(([key, semigroup]) => ({
       [key]: semigroup(x[key], y[key]),
+      // deno-lint-ignore no-explicit-any
     })).reduce((prev, curr) => ({ ...prev, ...curr }), {}) as any
   );
 
