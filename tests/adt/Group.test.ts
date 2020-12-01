@@ -38,22 +38,36 @@ const groupLaws = <T>(
   assert(leftIdentity(concat, generator), undefined);
 };
 
-const rightIdentityWithFloatPrescisionCorrection = <T>(group: Group<number>, generator: (...args: unknown[]) => unknown) => (property(
+const rightIdentityWithFloatPrescisionCorrection = <T>(
+  group: Group<number>,
+  generator: (...args: unknown[]) => unknown,
+) => (property(
   generator(),
-  (x: number) => expect(Math.round(group(x, group.invert(x)))).toEqual(group.empty),
+  (x: number) =>
+    expect(Math.round(group(x, group.invert(x)))).toEqual(group.empty),
 ));
 
-const leftIdentityWithFloatPrescisionCorrection = <T>(group: Group<number>, generator: (...args: unknown[]) => unknown) => (property(
+const leftIdentityWithFloatPrescisionCorrection = <T>(
+  group: Group<number>,
+  generator: (...args: unknown[]) => unknown,
+) => (property(
   generator(),
-  (x: number) => expect(Math.round(group(group.invert(x), x))).toEqual(group.empty),
+  (x: number) =>
+    expect(Math.round(group(group.invert(x), x))).toEqual(group.empty),
 ));
 
 const groupLawsWithFloatPrecisionCorrection = (
   concat: Group<number>,
   generator: (...args: unknown[]) => unknown,
 ) => {
-  assert(rightIdentityWithFloatPrescisionCorrection(concat, generator), undefined);
-  assert(leftIdentityWithFloatPrescisionCorrection(concat, generator), undefined);
+  assert(
+    rightIdentityWithFloatPrescisionCorrection(concat, generator),
+    undefined,
+  );
+  assert(
+    leftIdentityWithFloatPrescisionCorrection(concat, generator),
+    undefined,
+  );
 };
 
 Deno.test("addNumber is an associative binary operation following the group laws", () => {
@@ -62,7 +76,7 @@ Deno.test("addNumber is an associative binary operation following the group laws
 });
 
 Deno.test("multiply is an associative binary operation following the group laws on the set of floating number expect 0", () => {
-  const floatGenerator = () => float().filter((x: number) => x !== 0.0)
+  const floatGenerator = () => float().filter((x: number) => x !== 0.0);
 
-  groupLawsWithFloatPrecisionCorrection(multiplyNumber, floatGenerator)
+  groupLawsWithFloatPrecisionCorrection(multiplyNumber, floatGenerator);
 });
