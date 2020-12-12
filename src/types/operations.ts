@@ -77,7 +77,7 @@ export type ChainFn<T> = <A, B>(
 ) => $<T, [B]>;
 
 export type FoldableFn<T> = <A, B>(
-  f: (prev: A, curr: B) => A,
+  f: (acc: A, curr: B) => A,
   init: A,
   aggregate: $<T, [B]>,
 ) => A;

@@ -4,14 +4,15 @@ import type {
   Fn,
   Id,
   Lazy,
-  SemigroupoidFn,
   UnaryFunction,
 } from "./types/operations.ts";
 
-export const compose: SemigroupoidFn<UnaryFunction<_0, _1>> = (fij, fjk) =>
-  (x) => fjk(fij(x));
+export const compose = <I, J, K>(
+  fjk: UnaryFunction<J, K>,
+  fij: UnaryFunction<I, J>,
+): UnaryFunction<I, K> => (x: I) => fjk(fij(x));
 
-export const identity: Id<Fn<[_0], _0>> = () => (x) => x;
+export const identity: Id<UnaryFunction<_0,_0>> = () => (x) => x;
 
 export const constant = <A>(x: A): Lazy<A> => () => x;
 
