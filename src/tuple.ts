@@ -32,13 +32,13 @@ export const getOrdFn = <T extends ReadonlyArray<OrdFn<never>>>(
   });
 
 export const getSemigroupFn = <T extends ReadonlyArray<unknown>>(
-  semigroups: {[K in keyof T]: SemigroupFn<T[K]>},
+  semigroups: { [K in keyof T]: SemigroupFn<T[K]> },
 ): SemigroupFn<T> =>
-  (x, y) => semigroups.map((semigroup, i) => semigroup(x[i], y[i])) as unknown as T;
+  (x, y) =>
+    semigroups.map((semigroup, i) => semigroup(x[i], y[i])) as unknown as T;
 
 export const getEmptyFn = <T extends ReadonlyArray<unknown>>(
-  empties: {[K in keyof T]: Empty<T[K]>},
-): Empty<T> =>
-  () => empties.map((empty) => empty()) as unknown as T;
+  empties: { [K in keyof T]: Empty<T[K]> },
+): Empty<T> => () => empties.map((empty) => empty()) as unknown as T;
 
 // export {map, reduce} from './array.ts'

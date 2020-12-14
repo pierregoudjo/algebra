@@ -1,9 +1,25 @@
 import { fc } from "../deps.ts";
 import { monoidLaws, semigroupLaws, setoidLaws } from "./laws.ts";
-import { add as numberAdd, equals as numberEquals, additionEmpty as numberEmpty } from "./number.ts";
-import { add as bigintAdd, equals as bigintEquals, additionEmpty as bigintEmpty } from "./bigint.ts";
-import { concat as strConcat, equals as strEquals, empty as strEmpty } from "./string.ts";
-import { concat, getSetoidFn as arrayGetSetoidFn, empty as arrayEmpty } from "./array.ts";
+import {
+  add as numberAdd,
+  additionEmpty as numberEmpty,
+  equals as numberEquals,
+} from "./number.ts";
+import {
+  add as bigintAdd,
+  additionEmpty as bigintEmpty,
+  equals as bigintEquals,
+} from "./bigint.ts";
+import {
+  concat as strConcat,
+  empty as strEmpty,
+  equals as strEquals,
+} from "./string.ts";
+import {
+  concat,
+  empty as arrayEmpty,
+  getSetoidFn as arrayGetSetoidFn,
+} from "./array.ts";
 import { getEmptyFn, getSemigroupFn, getSetoidFn } from "./struct.ts";
 
 type SomeRecord = {
@@ -55,7 +71,7 @@ Deno.test("getSetoidFn generate a function that check equality", () => {
 });
 
 Deno.test("getSemigroupFn generate a function that concat struct together", () => {
-  const someRecordConcat   = getSemigroupFn(
+  const someRecordConcat = getSemigroupFn(
     { str: strConcat, int: numberAdd, arr: concat, bigint: bigintAdd },
   );
   fc.assert(
@@ -92,10 +108,12 @@ Deno.test("getSemigroupFn generate a function that concat struct together", () =
 });
 
 Deno.test("getSemigroupFn and getEmptyFn generate functions that form a monoid", () => {
-  const someRecordConcat   = getSemigroupFn(
+  const someRecordConcat = getSemigroupFn(
     { str: strConcat, int: numberAdd, arr: concat, bigint: bigintAdd },
   );
-  const emptyRecord = getEmptyFn({str: strEmpty, int: numberEmpty, arr: arrayEmpty, bigint: bigintEmpty})
+  const emptyRecord = getEmptyFn(
+    { str: strEmpty, int: numberEmpty, arr: arrayEmpty, bigint: bigintEmpty },
+  );
   fc.assert(
     fc.property(
       fc.record(

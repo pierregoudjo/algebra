@@ -42,8 +42,12 @@ Deno.test("getSemigroupFn generates a semigroup", () => {
       fc.tuple(fc.integer(), fc.string()),
       (x, y, z) => {
         semigroupLaws(getSemigroupFn([add, concat] as const))(x, y, z);
-        expect(x[0] + y[0]).toEqual(getSemigroupFn([add, concat] as const)(x,y)[0])
-        expect(x[1] + y[1]).toEqual(getSemigroupFn([add, concat] as const)(x,y)[1])
+        expect(x[0] + y[0]).toEqual(
+          getSemigroupFn([add, concat] as const)(x, y)[0],
+        );
+        expect(x[1] + y[1]).toEqual(
+          getSemigroupFn([add, concat] as const)(x, y)[1],
+        );
       },
     ),
   );
@@ -56,7 +60,10 @@ Deno.test("getSemigroupFn and getEmptyFn generates a monoid", () => {
       fc.tuple(fc.integer(), fc.string()),
       fc.tuple(fc.integer(), fc.string()),
       (x, y, z) => {
-        monoidLaws(getSemigroupFn([add, concat] as const), getEmptyFn([additionEmpty, empty] as const))(x, y, z);
+        monoidLaws(
+          getSemigroupFn([add, concat] as const),
+          getEmptyFn([additionEmpty, empty] as const),
+        )(x, y, z);
       },
     ),
   );

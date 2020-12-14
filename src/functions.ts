@@ -12,7 +12,7 @@ export const compose = <I, J, K>(
   fij: UnaryFunction<I, J>,
 ): UnaryFunction<I, K> => (x: I) => fjk(fij(x));
 
-export const identity: Id<UnaryFunction<_0,_0>> = () => (x) => x;
+export const identity: Id<UnaryFunction<_0, _0>> = () => (x) => x;
 
 export const constant = <A>(x: A): Lazy<A> => () => x;
 

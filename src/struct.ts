@@ -19,6 +19,7 @@ export const getSemigroupFn = <O extends Record<string, unknown>>(
 export const getEmptyFn = <T extends Record<string, unknown>>(
   empties: { [K in keyof T]: Empty<T[K]> },
 ): Empty<T> =>
-  () => Object.entries(empties).map(([key, empty]) => ({
-    [key]: empty(),
-  })).reduce((prev, curr) => ({ ...prev, ...curr }), {}) as T;
+  () =>
+    Object.entries(empties).map(([key, empty]) => ({
+      [key]: empty(),
+    })).reduce((prev, curr) => ({ ...prev, ...curr }), {}) as T;

@@ -2,17 +2,17 @@ import { expect } from "../deps.ts";
 import {
   $,
   BinaryRelation,
-  FoldableFn,
   Empty,
   FilterableFn,
+  FoldableFn,
   FunctorFn,
   InternalBinaryOperation,
+  Invert,
   OrdFn,
   Predicate,
   SemigroupFn,
   SetoidFn,
   UnknownFn,
-  Invert,
 } from "../src/types/operations.ts";
 
 const reflexivity = <T>(fn: BinaryRelation<T>) =>
@@ -64,13 +64,23 @@ const leftIdentity = <T>(fn: InternalBinaryOperation<T>, empty: Empty<T>) =>
     expect(fn(empty(), x)).toEqual(x);
   };
 
-const rightInverse = <T>(fn: InternalBinaryOperation<T>, empty: Empty<T>, invert: Invert<T>) => (x:T) =>{
-  expect(fn(x, invert(x))).toEqual(empty())
-}
+const rightInverse = <T>(
+  fn: InternalBinaryOperation<T>,
+  empty: Empty<T>,
+  invert: Invert<T>,
+) =>
+  (x: T) => {
+    expect(fn(x, invert(x))).toEqual(empty());
+  };
 
-const leftInverse = <T>(fn: InternalBinaryOperation<T>, empty: Empty<T>, invert: Invert<T>) => (x:T) =>{
-  expect(fn(invert(x), x)).toEqual(empty())
-}
+const leftInverse = <T>(
+  fn: InternalBinaryOperation<T>,
+  empty: Empty<T>,
+  invert: Invert<T>,
+) =>
+  (x: T) => {
+    expect(fn(invert(x), x)).toEqual(empty());
+  };
 
 // const filterableDistributivity = <T, A>(fn: FilterableFn<T>) =>
 //   (f: (x: A) => boolean, g: (x: A) => boolean, a: $<T, [A]>) => {
@@ -124,12 +134,16 @@ export const monoidLaws = <T>(fn: SemigroupFn<T>, empty: Empty<T>) =>
     leftIdentity(fn, empty)(x);
   };
 
-export const groupLaws = <T>(fn: SemigroupFn<T>, empty: Empty<T>, invert: Invert<T>) =>
-(x: T, y: T, z: T) => {
-  monoidLaws(fn, empty)(x,y,z)
-  rightInverse(fn, empty, invert)(x)
-  leftInverse(fn, empty, invert)(x)
-}
+export const groupLaws = <T>(
+  fn: SemigroupFn<T>,
+  empty: Empty<T>,
+  invert: Invert<T>,
+) =>
+  (x: T, y: T, z: T) => {
+    monoidLaws(fn, empty)(x, y, z);
+    rightInverse(fn, empty, invert)(x);
+    leftInverse(fn, empty, invert)(x);
+  };
 
 // export const filterableLaws = <T>(fn: FilterableFn<T>) =>
 //   (
@@ -151,4 +165,4 @@ export const groupLaws = <T>(fn: SemigroupFn<T>, empty: Empty<T>, invert: Invert
 
 // export const foldableLaws = <T>(fn:FoldableFn<T>) => <A,B>(f:(acc: A, curr: B) => A, x: A, u:$<T,[A]>) => {
 //   fn((acc:any[], curr) => acc.concat(curr), [], u).reduce(f, x)
-// } 
+// }
