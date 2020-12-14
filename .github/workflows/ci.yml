@@ -17,3 +17,5 @@ jobs:
           deno-version: v1.x
       - run: |
           deno test
+          deno fmt --check
+          deno lint --unstable
