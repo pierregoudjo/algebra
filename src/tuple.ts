@@ -45,4 +45,4 @@ export const getEmptyFn = <T extends ReadonlyArray<Empty<unknown>>>(
 ): Empty<{ [K in keyof T]: T[K] extends Empty<infer A> ? A : never }> =>
   () => empties.map((empty) => empty()) as any;
 
-export {map, reduce} from './array.ts'
+// export {map, reduce} from './array.ts'
