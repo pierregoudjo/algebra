@@ -1,4 +1,4 @@
-import { expect } from "https://deno.land/x/expect@v0.2.6/expect.ts";
+import { expect } from "../deps.ts";
 import { fc } from "../deps.ts";
 import {
   groupLaws,

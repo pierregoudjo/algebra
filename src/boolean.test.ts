@@ -9,7 +9,7 @@ import {
   not,
   or,
 } from "../src/boolean.ts";
-import { expect } from "https://deno.land/x/expect@v0.2.6/expect.ts";
+import { expect } from "../deps.ts";
 
 Deno.test("equals on boolean is a setoid", () => {
   fc.assert(
