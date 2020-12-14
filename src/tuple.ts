@@ -31,18 +31,14 @@ export const getOrdFn = <T extends ReadonlyArray<OrdFn<never>>>(
     return ords[i](x[i], y[i]);
   });
 
-// deno-lint-ignore no-explicit-any
-export const getSemigroupFn = <T extends ReadonlyArray<SemigroupFn<any>>>(
-  semigroups: T,
-): SemigroupFn<
-  { [K in keyof T]: T[K] extends SemigroupFn<infer A> ? A : never }
-> =>
-  // deno-lint-ignore no-explicit-any
-  (x, y) => semigroups.map((semigroup, i) => semigroup(x[i], y[i])) as any;
+export const getSemigroupFn = <T extends ReadonlyArray<unknown>>(
+  semigroups: {[K in keyof T]: SemigroupFn<T[K]>},
+): SemigroupFn<T> =>
+  (x, y) => semigroups.map((semigroup, i) => semigroup(x[i], y[i])) as unknown as T;
 
-export const getEmptyFn = <T extends ReadonlyArray<Empty<unknown>>>(
-  empties: T,
-): Empty<{ [K in keyof T]: T[K] extends Empty<infer A> ? A : never }> =>
-  () => empties.map((empty) => empty()) as any;
+export const getEmptyFn = <T extends ReadonlyArray<unknown>>(
+  empties: {[K in keyof T]: Empty<T[K]>},
+): Empty<T> =>
+  () => empties.map((empty) => empty()) as unknown as T;
 
 // export {map, reduce} from './array.ts'
