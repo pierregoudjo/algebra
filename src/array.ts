@@ -1,5 +1,9 @@
 import type {
+  _,
   Empty,
+  FilterableFn,
+  FoldableFn,
+  FunctorFn,
   OrdFn,
   SemigroupFn,
   SetoidFn,
@@ -26,10 +30,11 @@ export const getOrdFn = <T>(ord: OrdFn<T>, eq: SetoidFn<T>): OrdFn<T[]> =>
     return a.length <= b.length;
   });
 
-// export const filter: FilterableFn<ReadonlyArray<_>> = (predicate, array) =>
-//   array.filter(predicate);
+export const filter: FilterableFn<Array<_>> = (predicate, array) =>
+  array.filter((x) => predicate(x));
 
-// export const map: FunctorFn<ReadonlyArray<_>> = (fn, array) => array.map(fn);
+export const map: FunctorFn<Array<_>> = (mapper, array) =>
+  array.map((x) => mapper(x));
 
-// export const reduce: FoldableFn<ReadonlyArray<_>> = (fn, init, array) =>
-//   array.reduce(fn, init);
+export const reduce: FoldableFn<Array<_>> = (fn, init, array) =>
+  array.reduce((acc, curr) => fn(acc, curr), init);

@@ -11,8 +11,14 @@ import {
   add,
   additionEmpty,
   additionInvert,
+  between,
   equals,
+  gt,
+  gte,
+  lt,
   lte,
+  max,
+  min,
   multiplicationEmpty,
   multiplicationInvert,
   multiply,
@@ -105,4 +111,40 @@ Deno.test("Multplication and 1 and muliplicative invert with number is a monoid"
       },
     ),
   );
+});
+
+Deno.test("Min and max return respectively the minimum and maximum between two numbers", () => {
+  fc.assert(fc.property(
+    fc.integer(),
+    fc.integer(),
+    (x, y) => {
+      expect(min(x, y) === x).toEqual(lte(x, y));
+      expect(max(x, y) === x).toEqual(gte(x, y));
+      expect(min(x, y) === x && max(x, y) === x).toEqual(equals(x, y));
+      expect(min(x, y) === x).toEqual(max(x, y) === y);
+    },
+  ));
+});
+
+Deno.test("Between returns true if a value is between two numbers", () => {
+  fc.assert(fc.property(
+    fc.integer(),
+    fc.integer(),
+    fc.integer(),
+    (x, y, z) => {
+      expect(between(x, z)(y)).toEqual(min(x, y) === x && max(y, z) === z);
+    },
+  ));
+});
+
+Deno.test("gt, gte, lt", () => {
+  fc.assert(fc.property(
+    fc.integer(),
+    fc.integer(),
+    (x, y) => {
+      expect(gt(x, y)).toEqual(gte(x, y) && !equals(x, y));
+      expect(lt(x, y)).toEqual(lte(x, y) && !equals(x, y));
+      expect(gte(x, y)).toEqual(equals(x, y) || gt(x, y));
+    },
+  ));
 });

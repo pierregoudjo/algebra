@@ -82,30 +82,30 @@ const leftInverse = <T>(
     expect(fn(invert(x), x)).toEqual(empty());
   };
 
-// const filterableDistributivity = <T, A>(fn: FilterableFn<T>) =>
-//   (f: (x: A) => boolean, g: (x: A) => boolean, a: $<T, [A]>) => {
-//     expect(fn((x) => f(x) && g(x), a)).toEqual(fn(g, fn(f, a)));
-//   };
+const filterableDistributivity = <T, A>(fn: FilterableFn<T>) =>
+  (f: Predicate<A>, g: Predicate<A>, a: $<T, [A]>) => {
+    expect(fn((x) => f(x) && g(x), a)).toEqual(fn(g, fn(f, a)));
+  };
 
-// const filterableIdentity = <T, A>(fn: FilterableFn<T>) =>
-//   (a: $<T, [A]>) => {
-//     expect(fn(() => true, a)).toEqual(a);
-//   };
+const filterableIdentity = <T, A>(fn: FilterableFn<T>) =>
+  (a: $<T, [A]>) => {
+    expect(fn(() => true, a)).toEqual(a);
+  };
 
-// const filterableAnnihilation = <T, A>(fn: FilterableFn<T>) =>
-//   (a: $<T, [A]>, b: $<T, [A]>) => {
-//     expect(fn(() => false, a)).toEqual(fn(() => false, b));
-//   };
+const filterableAnnihilation = <T, A>(fn: FilterableFn<T>) =>
+  (a: $<T, [A]>, b: $<T, [A]>) => {
+    expect(fn(() => false, a)).toEqual(fn(() => false, b));
+  };
 
-// const functorIdentity = <T, A>(fn: FunctorFn<T>) =>
-//   (a: $<T, [A]>) => {
-//     expect(fn((x) => x, a)).toEqual(a);
-//   };
+const functorIdentity = <T, A>(fn: FunctorFn<T>) =>
+  (a: $<T, [A]>) => {
+    expect(fn((x) => x, a)).toEqual(a);
+  };
 
-// const functorComposition = <T, A, B, C>(fn: FunctorFn<T>) =>
-//   (f: (x: B) => C, g: (x: A) => B, a: $<T, [A]>) => {
-//     expect(fn((x) => f(g(x)), a)).toEqual(fn(f, fn(g, a)));
-//   };
+const functorComposition = <T, A, B, C>(fn: FunctorFn<T>) =>
+  (f: (x: B) => C, g: (x: A) => B, a: $<T, [A]>) => {
+    expect(fn((x) => f(g(x)), a)).toEqual(fn(f, fn(g, a)));
+  };
 
 export const setoidLaws = <T>(fn: SetoidFn<T>) =>
   (x: T, y: T, z: T) => {
@@ -145,24 +145,32 @@ export const groupLaws = <T>(
     leftInverse(fn, empty, invert)(x);
   };
 
-// export const filterableLaws = <T>(fn: FilterableFn<T>) =>
-//   (
-//     f: Predicate<unknown>,
-//     g: Predicate<unknown>,
-//     a: $<T, [unknown]>,
-//     b: $<T, [unknown]>,
-//   ) => {
-//     filterableDistributivity(fn)(f, g, a);
-//     filterableIdentity(fn)(a);
-//     filterableAnnihilation(fn)(a, b);
-//   };
+export const filterableLaws = <T>(fn: FilterableFn<T>) =>
+  (
+    f: Predicate<unknown>,
+    g: Predicate<unknown>,
+    a: $<T, [unknown]>,
+    b: $<T, [unknown]>,
+  ) => {
+    filterableDistributivity(fn)(f, g, a);
+    filterableIdentity(fn)(a);
+    filterableAnnihilation(fn)(a, b);
+  };
 
-// export const functorLaws = <T>(fn: FunctorFn<T>) =>
-//   (f: UnknownFn, g: UnknownFn, a: $<T, [unknown]>) => {
-//     functorIdentity(fn)(a);
-//     functorComposition(fn)(f, g, a);
-//   };
+export const functorLaws = <T>(fn: FunctorFn<T>) =>
+  (f: UnknownFn, g: UnknownFn, a: $<T, [unknown]>) => {
+    functorIdentity(fn)(a);
+    functorComposition(fn)(f, g, a);
+  };
 
-// export const foldableLaws = <T>(fn:FoldableFn<T>) => <A,B>(f:(acc: A, curr: B) => A, x: A, u:$<T,[A]>) => {
-//   fn((acc:any[], curr) => acc.concat(curr), [], u).reduce(f, x)
-// }
+export const foldableLaws = <T>(reduceFn: FoldableFn<T>) =>
+  <A, B>(f: (acc: A, curr: A) => A, init: A, foldable: $<T, [A]>) => {
+    const aggregatedValues = reduceFn(
+      (acc, y) => acc.concat([y]),
+      [] as A[],
+      foldable,
+    );
+    expect(aggregatedValues.reduce((acc, curr) => f(acc, curr), init)).toEqual(
+      reduceFn(f, init, foldable),
+    );
+  };

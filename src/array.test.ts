@@ -1,8 +1,24 @@
 import { expect } from "../deps.ts";
 import { fc } from "../deps.ts";
-import { monoidLaws, ordLaws, semigroupLaws, setoidLaws } from "./laws.ts";
-import { concat, empty, getOrdFn, getSetoidFn } from "../src/array.ts";
-import { _ } from "../src/types/operations.ts";
+import {
+  filterableLaws,
+  foldableLaws,
+  functorLaws,
+  monoidLaws,
+  ordLaws,
+  semigroupLaws,
+  setoidLaws,
+} from "./laws.ts";
+import {
+  concat,
+  empty,
+  filter,
+  getOrdFn,
+  getSetoidFn,
+  map,
+  reduce,
+} from "../src/array.ts";
+import { _, Predicate } from "../src/types/operations.ts";
 
 Deno.test("Array with concat is a semigroup", () => {
   fc.assert(
@@ -119,10 +135,11 @@ Deno.test("getSetoidFn generate setoid", () => {
 Deno.test("getOrdFn generate Ord", () => {
   fc.assert(
     fc.property(
+      fc.compareFunc(),
       fc.array((fc.string())),
       fc.array((fc.string())),
       fc.array((fc.string())),
-      (x, y, z) => {
+      (f, x, y, z) => {
         ordLaws(
           getOrdFn((x: string, y: string) => x >= y, (x, y) => x == y),
           getSetoidFn((x, y) => x == y),
@@ -132,47 +149,54 @@ Deno.test("getOrdFn generate Ord", () => {
   );
 });
 
-// Deno.test("Array with filter is a filterable", () => {
-//   fc.assert(
-//     fc.property(
-//       func(boolean()),
-//       func(boolean()),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       (f: Predicate<unknown>, g: Predicate<unknown>, y: unknown[], z: unknown[]) => {
-//         filterableLaws(filter)(f,g,y,z);
-//       },
-//     ),
-//     undefined,
-//   );
-// });
+Deno.test("Array with filter is a filterable", () => {
+  fc.assert(
+    fc.property(
+      fc.func(fc.boolean()),
+      fc.func(fc.boolean()),
+      fc.array(fc.anything()),
+      fc.array(fc.anything()),
+      (
+        f1: Predicate<unknown>,
+        g: Predicate<unknown>,
+        y: unknown[],
+        z: unknown[],
+      ) => {
+        filterableLaws(filter)(f1, g, y, z);
+      },
+    ),
+  );
+});
 
-// Deno.test("Array with map is a functor", () => {
-//   fc.assert(
-//     fc.property(
-//       func(boolean()),
-//       func(boolean()),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       (f: Predicate<unknown>, g: Predicate<unknown>, y: unknown[], z: unknown[]) => {
-//         functorLaws(map)(f,g,y)
-//       },
-//     ),
-//     undefined,
-//   );
-// });
+Deno.test("Array with map is a functor", () => {
+  fc.assert(
+    fc.property(
+      fc.func(fc.boolean()),
+      fc.func(fc.boolean()),
+      fc.array(fc.string()),
+      fc.array(fc.string()),
+      (
+        f: Predicate<unknown>,
+        g: Predicate<unknown>,
+        y: unknown[],
+        z: unknown[],
+      ) => {
+        functorLaws(map)(f, g, y);
+      },
+    ),
+    undefined,
+  );
+});
 
-// Deno.test("Array with reduce is a foldable", () => {
-//   fc.assert(
-//     fc.property(
-//       func(boolean()),
-//       func(boolean()),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       fc.array(fc.oneof(fc.string(), fc.double(), fc.bigInt(), fc.float(), fc.integer()), undefined),
-//       (f: Predicate<unknown>, g: Predicate<unknown>, y: unknown[], z: unknown[]) => {
-//         functorLaws(map)(f,g,y)
-//       },
-//     ),
-//     undefined,
-//   );
-// });
+Deno.test("Array with reduce is a foldable", () => {
+  fc.assert(
+    fc.property(
+      fc.func(fc.anything()),
+      fc.anything(),
+      fc.array(fc.anything()),
+      (reducer, init, arr) => {
+        foldableLaws(reduce)(reducer, init, arr);
+      },
+    ),
+  );
+});
