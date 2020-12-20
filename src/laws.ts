@@ -165,12 +165,15 @@ export const functorLaws = <T>(fn: FunctorFn<T>) =>
 
 export const foldableLaws = <T>(reduceFn: FoldableFn<T>) =>
   <A, B>(f: (acc: A, curr: A) => A, init: A, foldable: $<T, [A]>) => {
-    const aggregatedValues = reduceFn(
-      (acc, y) => acc.concat([y]),
-      [] as A[],
-      foldable,
-    );
-    expect(aggregatedValues.reduce((acc, curr) => f(acc, curr), init)).toEqual(
-      reduceFn(f, init, foldable),
-    );
+    expect(
+      reduceFn((acc, y) => acc.concat([y]), [] as A[], foldable).reduce(
+        (acc, curr) => f(acc, curr),
+        init,
+      ),
+    ).toEqual(reduceFn(f, init, foldable));
   };
+
+// export const semigroupoidLaws = <T> (compose: SemigroupoidFn<T>) =>
+//   <I,J,K,L> (a:$<T,[K, L]>, b:$<T,[J, K]>, c:$<T,[I, J]>, ) => {
+//     expect(compose(compose(a,b),c)).toEqual(compose(a, compose(b,c)))
+//   }

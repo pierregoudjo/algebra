@@ -27,8 +27,8 @@ export type SemigroupFn<T> = InternalBinaryOperation<T>;
 // export type GroupFn<T> = Invert<T>;
 
 export type SemigroupoidFn<T> = <I, J, K>(
-  f: $<T, [I, J]>,
   g: $<T, [J, K]>,
+  f: $<T, [I, J]>,
 ) => $<T, [I, K]>;
 
 // export type CategoryFn<T> = Id<T>;
